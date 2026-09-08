@@ -9,6 +9,21 @@
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="preload" href="assets/styles.css" as="style">
   <link rel="stylesheet" href="assets/styles.css">
+  <style>
+    .hero-copy{display:none}
+    .hero{min-height:calc(100svh - 72px);display:flex;align-items:center;padding:20px}
+    .hero-grid{width:100%;max-width:520px;margin:auto;display:block}
+    .vsl-wrap{width:100%}
+    @media (min-width:860px){
+      .hero{min-height:calc(100svh - 88px);padding:28px}
+      .hero-grid{max-width:520px}
+      .video-shell video{height:min(72vh,720px)}
+    }
+    @media (max-width:560px){
+      .hero{padding:14px 14px 24px}
+      .hero-grid{max-width:430px}
+    }
+  </style>
   <script src="assets/script.js" defer></script>
 </head>
 <body>
