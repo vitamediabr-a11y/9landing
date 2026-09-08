@@ -35,7 +35,7 @@
         <div class="vsl-wrap reveal" aria-label="Vídeo de apresentação da oportunidade">
           <div class="video-shell" id="videoShell">
             <video id="vslVideo" playsinline preload="metadata" poster="assets/vsl-poster.svg" aria-label="VSL NOVE — Investimento em Campo Society">
-              <source src="assets/vsl.mp4" type="video/mp4">
+              <source src="assets/vsl.MP4" type="video/mp4">
               Seu navegador não suporta reprodução de vídeo.
             </video>
             <button class="video-play" id="videoPlayBtn" type="button" aria-label="Reproduzir vídeo">
@@ -78,91 +78,58 @@
         </div>
 
         <div id="quizStage" class="stage" aria-live="polite">
-          <div class="progress-wrap" aria-label="Progresso do questionário">
-            <div class="progress-meta">
-              <span id="questionCounter">Pergunta 1 de 6</span>
-              <span id="progressPercent">17%</span>
-            </div>
-            <div class="progress-track" aria-hidden="true"><span id="progressBar"></span></div>
+          <div class="progress-row">
+            <span id="questionCounter">Pergunta 1 de 6</span>
+            <span id="progressPercent">17%</span>
           </div>
-
-          <div class="question-panel" id="questionPanel">
-            <p class="question-kicker">Análise do projeto</p>
-            <h2 id="quiz-title" class="question-title"></h2>
-            <div id="options" class="options" role="group" aria-labelledby="quiz-title"></div>
-            <div class="quiz-actions">
-              <button class="back-btn" id="backBtn" type="button">← Voltar</button>
-            </div>
-          </div>
+          <div class="progress-track" aria-hidden="true"><div id="progressBar"></div></div>
+          <h2 id="quiz-title">Onde você pretende instalar seu campo society?</h2>
+          <div id="options" class="options-grid"></div>
+          <button class="text-btn" id="backBtn" type="button" hidden>← Voltar</button>
         </div>
 
-        <form id="leadForm" class="lead-form" novalidate hidden>
-          <p class="question-kicker">Etapa final</p>
-          <h2>Só falta uma informação para prepararmos sua análise.</h2>
-          <p>Preencha seus dados para gerar o resumo do projeto e conversar com a equipe da NOVE.</p>
-
-          <div class="field-grid">
-            <label>
-              <span>Nome</span>
-              <input id="leadName" name="name" type="text" autocomplete="name" required maxlength="80" placeholder="Seu nome">
-              <small class="field-error" data-error-for="name"></small>
-            </label>
-            <label>
-              <span>Cidade</span>
-              <input id="leadCity" name="city" type="text" autocomplete="address-level2" required maxlength="80" placeholder="Sua cidade">
-              <small class="field-error" data-error-for="city"></small>
-            </label>
-            <label class="field-wide">
-              <span>Telefone / WhatsApp</span>
-              <input id="leadPhone" name="phone" type="tel" inputmode="tel" autocomplete="tel" required maxlength="20" placeholder="(91) 99999-9999">
-              <small class="field-error" data-error-for="phone"></small>
-            </label>
+        <form class="lead-form" id="leadForm" hidden novalidate>
+          <p class="eyebrow">Última etapa</p>
+          <h2>Para onde enviamos sua análise?</h2>
+          <p>Preencha seus dados. A NOVE recebe o contexto do seu projeto junto com sua solicitação.</p>
+          <div class="form-grid">
+            <label>Nome completo<input id="leadName" name="name" autocomplete="name" required><small class="field-error" data-error-for="name"></small></label>
+            <label>Cidade<input id="leadCity" name="city" autocomplete="address-level2" required><small class="field-error" data-error-for="city"></small></label>
+            <label>WhatsApp<input id="leadPhone" name="phone" inputmode="tel" autocomplete="tel" placeholder="(91) 99999-9999" required><small class="field-error" data-error-for="phone"></small></label>
           </div>
-
-          <label class="consent">
-            <input id="leadConsent" name="consent" type="checkbox">
-            <span>Ao continuar, concordo em ser contatado pela NOVE sobre meu projeto.</span>
-          </label>
-
+          <label class="consent"><input id="leadConsent" type="checkbox"> <span>Autorizo o contato da equipe NOVE sobre este projeto.</span></label>
           <div class="form-actions">
-            <button class="back-btn" id="backFromFormBtn" type="button">← Voltar</button>
-            <button class="primary-cta" type="submit"><span>Ver minha análise</span><span aria-hidden="true">→</span></button>
+            <button class="text-btn" id="backFromFormBtn" type="button">← Voltar</button>
+            <button class="primary-cta" type="submit">Ver minha análise →</button>
           </div>
         </form>
 
-        <section id="resultPanel" class="result-panel" hidden aria-live="polite">
+        <section class="result-panel" id="resultPanel" hidden aria-live="polite">
           <p class="eyebrow">Análise concluída</p>
           <h2 id="resultTitle"></h2>
           <p id="resultText"></p>
-          <p id="otherStateNote" class="other-state-note" hidden>Atualmente nossa atuação prioritária está concentrada no Pará, Maranhão e Tocantins. Ainda assim, podemos avaliar seu caso.</p>
-          <a id="whatsappResultBtn" class="primary-cta whatsapp-cta" href="#" target="_blank" rel="noopener">
-            <span>Quero analisar meu projeto no WhatsApp</span>
-            <span aria-hidden="true">↗</span>
-          </a>
-          <button id="restartBtn" class="text-btn" type="button">Reiniciar simulação</button>
+          <p id="otherStateNote" hidden>Seu estado está fora da área prioritária da campanha. Nossa equipe pode avaliar a possibilidade de atendimento.</p>
+          <div class="result-actions">
+            <a class="primary-cta" id="whatsappResultBtn" href="#" target="_blank" rel="noopener">Falar com a NOVE no WhatsApp →</a>
+            <button class="text-btn" id="restartBtn" type="button">Refazer análise</button>
+          </div>
         </section>
       </div>
     </section>
 
-    <section class="closing-section reveal" aria-label="Sobre a análise">
-      <p class="eyebrow">Projeto antes da obra</p>
-      <h2>Terreno, estrutura, implantação e operação precisam conversar entre si.</h2>
-      <p>A proposta desta análise é organizar as informações iniciais para que a equipe da NOVE entenda o estágio do seu projeto e indique os próximos passos de viabilidade.</p>
+    <section class="closing-section">
+      <p class="eyebrow">NOVE · Projetos Society</p>
+      <h2>Seu próximo projeto pode começar com uma análise simples.</h2>
+      <p>Conte onde está, qual área possui e qual é o momento do investimento. Nós organizamos essas informações para a conversa com nossa equipe.</p>
+      <a class="primary-cta" href="#topo">Voltar ao início ↑</a>
     </section>
   </main>
 
-  <footer class="site-footer">
-    <a class="brand brand-footer" href="#topo">NOVE<span>.</span></a>
-    <p>Superfícies esportivas e implantação de arenas society.</p>
-    <p>Pará · Maranhão · Tocantins</p>
+  <a class="floating-whatsapp" id="floatingWhatsapp" href="https://wa.me/5591993333032" target="_blank" rel="noopener" aria-label="Falar com a NOVE no WhatsApp">WA</a>
+
+  <footer>
+    <span>NOVE.</span>
+    <span>Pará · Maranhão · Tocantins</span>
   </footer>
-
-  <a class="floating-whatsapp" id="floatingWhatsapp" href="https://wa.me/5591993333032" target="_blank" rel="noopener" aria-label="Falar com a NOVE no WhatsApp">
-    <span aria-hidden="true">WA</span>
-  </a>
-
-  <noscript>
-    <div class="noscript">Para usar a análise do projeto, habilite JavaScript no navegador.</div>
-  </noscript>
 </body>
 </html>
