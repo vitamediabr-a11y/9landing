@@ -14,6 +14,7 @@
     .hero{min-height:calc(100svh - 72px);display:flex;align-items:center;padding:20px}
     .hero-grid{width:100%;max-width:520px;margin:auto;display:block}
     .vsl-wrap{width:100%}
+    .play-instruction{margin:0 0 12px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#fff;text-align:center;font-size:14px;font-weight:800;letter-spacing:.01em}
     .vsl-wrap .primary-cta{margin-top:14px;min-height:66px;font-size:17px;box-shadow:0 14px 34px rgba(49,231,111,.34);border:1px solid rgba(255,255,255,.24)}
     .video-progress{pointer-events:none;cursor:default}
     .video-progress:disabled{opacity:1}
@@ -53,6 +54,7 @@
         </div>
 
         <div class="vsl-wrap reveal" aria-label="Vídeo de apresentação da oportunidade">
+          <p class="play-instruction"><span aria-hidden="true">▶</span> Aperte no play para iniciar o vídeo</p>
           <div class="video-shell" id="videoShell">
             <video id="vslVideo" playsinline preload="metadata" poster="https://res.cloudinary.com/pc0xifey/video/upload/so_1/f_jpg/q_auto/v1788892095/SaveClip.App_AQPwmXAGJSxoUh0L2-vJOaTkCaCs8ErHNMx1oUCRPIq5iiYsW1cCqAwKz4TjmQLbz1W0atxyV3VvfSRJURYWarHa.jpg" aria-label="VSL NOVE — Investimento em Campo Society">
               <source src="assets/vsl.mp4" type="video/mp4">
