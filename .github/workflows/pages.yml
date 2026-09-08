@@ -28,7 +28,10 @@ jobs:
         shell: bash
         run: |
           mkdir -p assets
-          cat vsl120_parts/part-* | tr -d '\n' | base64 --decode > assets/vsl.mp4
+          : > assets/vsl.mp4
+          for part in vsl120_parts/part-*; do
+            tr -d '\n\r ' < "$part" | base64 --decode >> assets/vsl.mp4
+          done
           python - <<'PY'
           from pathlib import Path
           p = Path('assets/vsl.mp4')
