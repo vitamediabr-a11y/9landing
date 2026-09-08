@@ -24,28 +24,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Rebuild VSL
-        shell: bash
-        run: |
-          mkdir -p assets
-          python - <<'PY'
-          from pathlib import Path
-          import base64, glob, re, subprocess
-
-          parts = sorted(glob.glob('pages_media10/part-*'))
-          assert parts, 'No VSL chunks found'
-          encoded = ''.join(re.sub(r'[^A-Za-z0-9+/=]', '', Path(p).read_text(errors='ignore')) for p in parts)
-          encoded = encoded.replace('=', '')
-          encoded += '=' * ((4 - len(encoded) % 4) % 4)
-          data = base64.b64decode(encoded, validate=False)
-          assert len(data) > 10000, 'VSL file too small'
-          assert b'ftyp' in data[:32], 'Invalid MP4 header'
-          Path('assets/vsl.mp4').write_bytes(data)
-          print(f'VSL rebuilt: {len(data)} bytes from {len(parts)} chunks')
-          if subprocess.run(['bash','-lc','command -v ffprobe >/dev/null']).returncode == 0:
-              subprocess.run(['ffprobe','-v','error','-show_entries','format=duration','-of','default=nw=1:nk=1','assets/vsl.mp4'], check=True)
-          PY
-          rm -rf vsl120_parts vsl_parts tiny_chunks pages_media10 pages_media20 deploy_chunks
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
