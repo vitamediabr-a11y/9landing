@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d2d22">
+  <meta name="description" content="Avalie o perfil do seu projeto de campo society com a NOVE. Atendimento prioritário no Pará, Maranhão e Tocantins.">
+  <title>NOVE — Investimento em Campo Society</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="assets/styles.css" as="style">
+  <link rel="stylesheet" href="assets/styles.css">
+  <script src="assets/script.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#conteudo">Ir para o conteúdo</a>
+
+  <header class="site-header" aria-label="Cabeçalho">
+    <a class="brand" href="#topo" aria-label="NOVE, início">NOVE<span>.</span></a>
+    <span class="campaign-label">Projetos Society</span>
+  </header>
+
+  <main id="conteudo">
+    <section class="hero" id="topo" aria-labelledby="hero-title">
+      <div class="hero-grid">
+        <div class="hero-copy reveal">
+          <p class="eyebrow">Investimento • Infraestrutura • Operação</p>
+          <h1 id="hero-title">Um terreno pode ser apenas um espaço.<br><em>Ou pode se tornar um negócio.</em></h1>
+          <p class="hero-subtitle">Descubra como transformar uma área disponível em uma operação de campo society planejada para gerar uso, movimento e novas oportunidades de receita.</p>
+          <div class="region-note" aria-label="Região de atendimento prioritário">
+            <span>Atendimento prioritário</span>
+            <strong>Pará · Maranhão · Tocantins</strong>
+          </div>
+        </div>
+
+        <div class="vsl-wrap reveal" aria-label="Vídeo de apresentação da oportunidade">
+          <div class="video-shell" id="videoShell">
+            <video id="vslVideo" playsinline preload="metadata" poster="assets/vsl-poster.svg" aria-label="VSL NOVE — Investimento em Campo Society">
+              <source src="assets/vsl.mp4" type="video/mp4">
+              Seu navegador não suporta reprodução de vídeo.
+            </video>
+            <button class="video-play" id="videoPlayBtn" type="button" aria-label="Reproduzir vídeo">
+              <span class="play-icon" aria-hidden="true"></span>
+            </button>
+            <div class="video-controls" aria-label="Controles do vídeo">
+              <input id="videoProgress" class="video-progress" type="range" min="0" max="1000" value="0" step="1" aria-label="Progresso do vídeo">
+              <span id="videoTime" class="video-time">0:00 / 0:00</span>
+            </div>
+            <span id="vslStatus" class="sr-only" aria-live="polite">Preparando vídeo.</span>
+          </div>
+          <p class="video-caption">Assista ao vídeo e responda 6 perguntas para avaliarmos o perfil do seu projeto.</p>
+          <button class="primary-cta" id="startQuizBtn" type="button">
+            <span>Analisar meu projeto</span>
+            <span aria-hidden="true">→</span>
+          </button>
+          <p class="microcopy">Leva cerca de 1 minuto. Sem compromisso.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="proof-strip" aria-labelledby="proof-title">
+      <div class="proof-heading reveal">
+        <p class="eyebrow">Experiência regional</p>
+        <h2 id="proof-title">Projetos executados no Pará e região</h2>
+        <p>Área preparada para receber projetos, antes/depois, arenas, depoimentos e números reais da NOVE.</p>
+      </div>
+      <div class="proof-placeholders reveal" aria-label="Espaços reservados para provas sociais futuras">
+        <div><span>01</span><p>Projeto / arena</p></div>
+        <div><span>02</span><p>Antes e depois</p></div>
+        <div><span>03</span><p>Depoimento / dados reais</p></div>
+      </div>
+    </section>
+
+    <section class="quiz-section" id="analise" aria-labelledby="quiz-title" hidden>
+      <div class="quiz-shell">
+        <div class="quiz-topline">
+          <a class="brand brand-small" href="#topo" aria-label="NOVE, voltar ao início">NOVE<span>.</span></a>
+          <button class="ghost-btn" id="restartTopBtn" type="button">Reiniciar</button>
+        </div>
+
+        <div id="quizStage" class="stage" aria-live="polite">
+          <div class="progress-wrap" aria-label="Progresso do questionário">
+            <div class="progress-meta">
+              <span id="questionCounter">Pergunta 1 de 6</span>
+              <span id="progressPercent">17%</span>
+            </div>
+            <div class="progress-track" aria-hidden="true"><span id="progressBar"></span></div>
+          </div>
+
+          <div class="question-panel" id="questionPanel">
+            <p class="question-kicker">Análise do projeto</p>
+            <h2 id="quiz-title" class="question-title"></h2>
+            <div id="options" class="options" role="group" aria-labelledby="quiz-title"></div>
+            <div class="quiz-actions">
+              <button class="back-btn" id="backBtn" type="button">← Voltar</button>
+            </div>
+          </div>
+        </div>
+
+        <form id="leadForm" class="lead-form" novalidate hidden>
+          <p class="question-kicker">Etapa final</p>
+          <h2>Só falta uma informação para prepararmos sua análise.</h2>
+          <p>Preencha seus dados para gerar o resumo do projeto e conversar com a equipe da NOVE.</p>
+
+          <div class="field-grid">
+            <label>
+              <span>Nome</span>
+              <input id="leadName" name="name" type="text" autocomplete="name" required maxlength="80" placeholder="Seu nome">
+              <small class="field-error" data-error-for="name"></small>
+            </label>
+            <label>
+              <span>Cidade</span>
+              <input id="leadCity" name="city" type="text" autocomplete="address-level2" required maxlength="80" placeholder="Sua cidade">
+              <small class="field-error" data-error-for="city"></small>
+            </label>
+            <label class="field-wide">
+              <span>Telefone / WhatsApp</span>
+              <input id="leadPhone" name="phone" type="tel" inputmode="tel" autocomplete="tel" required maxlength="20" placeholder="(91) 99999-9999">
+              <small class="field-error" data-error-for="phone"></small>
+            </label>
+          </div>
+
+          <label class="consent">
+            <input id="leadConsent" name="consent" type="checkbox">
+            <span>Ao continuar, concordo em ser contatado pela NOVE sobre meu projeto.</span>
+          </label>
+
+          <div class="form-actions">
+            <button class="back-btn" id="backFromFormBtn" type="button">← Voltar</button>
+            <button class="primary-cta" type="submit"><span>Ver minha análise</span><span aria-hidden="true">→</span></button>
+          </div>
+        </form>
+
+        <section id="resultPanel" class="result-panel" hidden aria-live="polite">
+          <p class="eyebrow">Análise concluída</p>
+          <h2 id="resultTitle"></h2>
+          <p id="resultText"></p>
+          <p id="otherStateNote" class="other-state-note" hidden>Atualmente nossa atuação prioritária está concentrada no Pará, Maranhão e Tocantins. Ainda assim, podemos avaliar seu caso.</p>
+          <a id="whatsappResultBtn" class="primary-cta whatsapp-cta" href="#" target="_blank" rel="noopener">
+            <span>Quero analisar meu projeto no WhatsApp</span>
+            <span aria-hidden="true">↗</span>
+          </a>
+          <button id="restartBtn" class="text-btn" type="button">Reiniciar simulação</button>
+        </section>
+      </div>
+    </section>
+
+    <section class="closing-section reveal" aria-label="Sobre a análise">
+      <p class="eyebrow">Projeto antes da obra</p>
+      <h2>Terreno, estrutura, implantação e operação precisam conversar entre si.</h2>
+      <p>A proposta desta análise é organizar as informações iniciais para que a equipe da NOVE entenda o estágio do seu projeto e indique os próximos passos de viabilidade.</p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <a class="brand brand-footer" href="#topo">NOVE<span>.</span></a>
+    <p>Superfícies esportivas e implantação de arenas society.</p>
+    <p>Pará · Maranhão · Tocantins</p>
+  </footer>
+
+  <a class="floating-whatsapp" id="floatingWhatsapp" href="https://wa.me/5591993333032" target="_blank" rel="noopener" aria-label="Falar com a NOVE no WhatsApp">
+    <span aria-hidden="true">WA</span>
+  </a>
+
+  <noscript>
+    <div class="noscript">Para usar a análise do projeto, habilite JavaScript no navegador.</div>
+  </noscript>
+</body>
+</html>
