@@ -47,11 +47,6 @@ jobs:
           PY
           rm -rf vsl120_parts vsl_parts tiny_chunks pages_media10 pages_media20 deploy_chunks
 
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
-        with:
-          enablement: true
-
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
         with:
