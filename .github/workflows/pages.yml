@@ -28,9 +28,16 @@ jobs:
         shell: bash
         run: |
           mkdir -p assets
-          cat pages_chunks/part-* | tr -d '\n' | base64 --decode > assets/vsl.mp4
-          test -s assets/vsl.mp4
-          rm -rf pages_chunks
+          cat vsl120_parts/part-* | tr -d '\n' | base64 --decode > assets/vsl.mp4
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('assets/vsl.mp4')
+          data = p.read_bytes()
+          assert len(data) > 10000, 'VSL file too small'
+          assert b'ftyp' in data[:32], 'Invalid MP4 header'
+          print(f'VSL rebuilt: {len(data)} bytes')
+          PY
+          rm -rf vsl120_parts vsl_parts tiny_chunks pages_media10 pages_media20 deploy_chunks
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
