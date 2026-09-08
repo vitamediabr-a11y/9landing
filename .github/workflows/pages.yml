@@ -28,17 +28,24 @@ jobs:
         shell: bash
         run: |
           mkdir -p assets
-          : > assets/vsl.mp4
-          for part in vsl120_parts/part-*; do
-            tr -d '\n\r ' < "$part" | base64 --decode >> assets/vsl.mp4
-          done
           python - <<'PY'
           from pathlib import Path
-          p = Path('assets/vsl.mp4')
-          data = p.read_bytes()
-          assert len(data) > 10000, 'VSL file too small'
-          assert b'ftyp' in data[:32], 'Invalid MP4 header'
-          print(f'VSL rebuilt: {len(data)} bytes')
+          import base64, glob, re
+
+          output = bytearray()
+          parts = sorted(glob.glob('vsl120_parts/part-*'))
+          assert parts, 'No VSL chunks found'
+
+          for name in parts:
+              text = Path(name).read_text(errors='ignore')
+              clean = re.sub(r'[^A-Za-z0-9+/=]', '', text)
+              clean += '=' * ((4 - len(clean) % 4) % 4)
+              output.extend(base64.b64decode(clean, validate=False))
+
+          assert len(output) > 10000, 'VSL file too small'
+          assert b'ftyp' in output[:32], 'Invalid MP4 header'
+          Path('assets/vsl.mp4').write_bytes(output)
+          print(f'VSL rebuilt: {len(output)} bytes from {len(parts)} chunks')
           PY
           rm -rf vsl120_parts vsl_parts tiny_chunks pages_media10 pages_media20 deploy_chunks
 
