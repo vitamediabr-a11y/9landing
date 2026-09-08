@@ -2,11 +2,11 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches: [pages-publish]
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -24,20 +24,48 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Rebuild VSL
+      - name: Fetch VSL binary and remove legacy chunk artifacts
+        shell: bash
+        env:
+          VSL_URL: https://res.cloudinary.com/pc0xifey/video/upload/v1788892095/SaveClip.App_AQPwmXAGJSxoUh0L2-vJOaTkCaCs8ErHNMx1oUCRPIq5iiYsW1cCqAwKz4TjmQLbz1W0atxyV3VvfSRJURYWarHa.mp4
+          VSL_BYTES: "12185477"
+        run: |
+          set -euo pipefail
+          mkdir -p assets
+
+          if [ ! -s assets/vsl.mp4 ]; then
+            curl --fail --location --retry 2 --retry-delay 2 "$VSL_URL" --output assets/vsl.mp4
+          fi
+
+          actual_bytes="$(wc -c < assets/vsl.mp4 | tr -d ' ')"
+          test "$actual_bytes" = "$VSL_BYTES"
+          file assets/vsl.mp4 | grep -qi 'MP4'
+
+          rm -rf \
+            deploy_chunks \
+            pages_chunks \
+            pages_media10 \
+            pages_media20 \
+            tiny_chunks \
+            vsl_parts \
+            vsl120_parts
+
+          echo "VSL ready: ${actual_bytes} bytes"
+
+      - name: Persist VSL binary and cleanup to pages-publish
         shell: bash
         run: |
-          mkdir -p assets
-          cat vsl120_parts/part-* | tr -d '\n' | base64 --decode > assets/vsl.mp4
-          python - <<'PY'
-          from pathlib import Path
-          p = Path('assets/vsl.mp4')
-          data = p.read_bytes()
-          assert len(data) > 10000, 'VSL file too small'
-          assert b'ftyp' in data[:32], 'Invalid MP4 header'
-          print(f'VSL rebuilt: {len(data)} bytes')
-          PY
-          rm -rf vsl120_parts vsl_parts tiny_chunks pages_media10 pages_media20 deploy_chunks
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+
+          if git diff --cached --quiet; then
+            echo "Repository already contains the VSL binary and no legacy chunks."
+          else
+            git commit -m "chore: store VSL binary and remove chunk workarounds [skip ci]"
+            git push origin HEAD:pages-publish
+          fi
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
