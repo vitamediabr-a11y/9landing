@@ -2,6 +2,7 @@
   'use strict';
 
   const STORAGE_KEY = 'nove_society_lead_v1';
+  const QUEUE_KEY = 'nove_society_lead_sync_queue_v1';
   const CAPTURE_VERSION = 2;
   // Cole aqui a URL /exec do Google Apps Script quando o webhook for publicado.
   const LEAD_WEBHOOK_URL = '';
@@ -15,6 +16,15 @@
 
   const saveState = (state) => localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   const digitsOnly = (value) => String(value || '').replace(/\D/g, '');
+
+  const readQueue = () => {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]');
+      return Array.isArray(parsed) ? parsed : [];
+    } catch { return []; }
+  };
+
+  const saveQueue = (queue) => localStorage.setItem(QUEUE_KEY, JSON.stringify(queue));
 
   const formatPhone = (value) => {
     const d = digitsOnly(value).slice(0, 11);
@@ -46,14 +56,14 @@
     if (Array.isArray(window.dataLayer)) window.dataLayer.push(payload);
   };
 
-  const syncLead = (status, extra = {}) => {
-    if (!LEAD_WEBHOOK_URL) return;
+  const buildPayload = (status, extra = {}) => {
     let state = readState();
-    if (!hasIdentity(state)) return;
+    if (!hasIdentity(state)) return null;
     state = ensureLeadIdentity(state);
     const answers = state.answers || {};
     const answeredCount = QUIZ_KEYS.filter(key => answers[key]).length;
-    const payload = {
+
+    return {
       leadId: state.leadId,
       capturedAt: state.capturedAt,
       updatedAt: new Date().toISOString(),
@@ -73,17 +83,68 @@
       whatsappClicked: !!extra.whatsappClicked,
       origin: ORIGIN
     };
-
-    fetch(LEAD_WEBHOOK_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      keepalive: true,
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(payload)
-    }).catch(error => console.warn('[NOVE lead sync]', error));
   };
 
-  window.NoveLeadSync = { sync: syncLead, configured: Boolean(LEAD_WEBHOOK_URL) };
+  // Mantém apenas o estado mais recente de cada lead. Se a internet cair na pergunta 2
+  // e voltar na pergunta 5, a fila contém a pergunta 5, que já inclui todas as anteriores.
+  const enqueuePayload = (payload) => {
+    if (!payload?.leadId) return;
+    const queue = readQueue().filter(item => item?.leadId !== payload.leadId);
+    queue.push(payload);
+    saveQueue(queue.slice(-20));
+  };
+
+  const postPayload = async (payload) => {
+    if (!LEAD_WEBHOOK_URL) return false;
+    try {
+      await fetch(LEAD_WEBHOOK_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        keepalive: true,
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+      return true;
+    } catch (error) {
+      console.warn('[NOVE lead sync]', error);
+      return false;
+    }
+  };
+
+  let flushing = false;
+  const flushQueue = async () => {
+    if (flushing || !LEAD_WEBHOOK_URL || !navigator.onLine) return false;
+    flushing = true;
+    try {
+      const queue = readQueue();
+      const pending = [];
+      for (const payload of queue) {
+        const sent = await postPayload(payload);
+        if (!sent) pending.push(payload);
+      }
+      saveQueue(pending);
+      return pending.length === 0;
+    } finally {
+      flushing = false;
+    }
+  };
+
+  const syncLead = async (status, extra = {}) => {
+    const payload = buildPayload(status, extra);
+    if (!payload) return false;
+    enqueuePayload(payload);
+    if (!LEAD_WEBHOOK_URL) return false;
+    return flushQueue();
+  };
+
+  window.NoveLeadSync = {
+    sync: syncLead,
+    flush: flushQueue,
+    configured: Boolean(LEAD_WEBHOOK_URL)
+  };
+
+  window.addEventListener('online', () => { void flushQueue(); });
+  if (LEAD_WEBHOOK_URL) setTimeout(() => { void flushQueue(); }, 300);
 
   const startBtn = document.getElementById('startQuizBtn');
   const quizSection = document.getElementById('analise');
@@ -133,7 +194,7 @@
     event.target.value = formatPhone(event.target.value);
   });
 
-  preLeadForm.addEventListener('submit', (event) => {
+  preLeadForm.addEventListener('submit', async (event) => {
     event.preventDefault();
 
     const name = preLeadName.value.trim();
@@ -164,7 +225,14 @@
     state = ensureLeadIdentity(state);
 
     pushEvent('lead_captured_before_quiz', { phone_digits: digits.length });
-    syncLead('captured', { lastStage: 'Cadastro inicial' });
+
+    // Primeiro cria/atualiza o lead; somente depois abre a Pergunta 1.
+    // Se o endpoint estiver temporariamente indisponível, a fila local preserva o payload para retry.
+    await Promise.race([
+      syncLead('captured', { lastStage: 'Cadastro inicial' }),
+      new Promise(resolve => setTimeout(resolve, 1400))
+    ]);
+
     preLeadForm.hidden = true;
 
     // Recarrega a aplicação para impedir que um estado antigo em memória pule perguntas.
@@ -177,11 +245,14 @@
   if (options) {
     options.addEventListener('click', (event) => {
       if (!event.target.closest('.option-btn')) return;
+      // script.js grava a resposta no localStorage de forma síncrona antes deste evento chegar ao pai.
       setTimeout(() => {
         const state = readState();
         const answeredCount = QUIZ_KEYS.filter(key => state?.answers?.[key]).length;
-        if (answeredCount) syncLead('quiz_in_progress', { lastStage: `Pergunta ${answeredCount} de 6` });
-      }, 220);
+        if (answeredCount) {
+          void syncLead('quiz_in_progress', { lastStage: `Pergunta ${answeredCount} de 6` });
+        }
+      }, 80);
     });
   }
 
@@ -189,17 +260,25 @@
     finalLeadForm.addEventListener('submit', () => {
       setTimeout(() => {
         const state = readState();
-        if (state.completed) syncLead('completed', { lastStage: 'Quiz concluído' });
-      }, 80);
+        if (state.completed) {
+          void syncLead('completed', { lastStage: 'Quiz concluído' });
+        } else if (state?.lead?.city) {
+          void syncLead('quiz_in_progress', { lastStage: 'Cidade informada' });
+        }
+      }, 120);
     });
   }
 
   if (whatsappResult) {
-    whatsappResult.addEventListener('click', () => syncLead('whatsapp_clicked', { lastStage: 'WhatsApp', whatsappClicked: true }));
+    whatsappResult.addEventListener('click', () => {
+      void syncLead('whatsapp_clicked', { lastStage: 'WhatsApp', whatsappClicked: true });
+    });
   }
 
   if (floatingWhatsapp) {
-    floatingWhatsapp.addEventListener('click', () => syncLead('whatsapp_clicked', { lastStage: 'WhatsApp flutuante', whatsappClicked: true }));
+    floatingWhatsapp.addEventListener('click', () => {
+      void syncLead('whatsapp_clicked', { lastStage: 'WhatsApp flutuante', whatsappClicked: true });
+    });
   }
 
   // Após a captura, abre automaticamente a Pergunta 1 somente depois que script.js já registrou seus eventos.
