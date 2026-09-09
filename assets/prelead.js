@@ -4,8 +4,7 @@
   const STORAGE_KEY = 'nove_society_lead_v1';
   const QUEUE_KEY = 'nove_society_lead_sync_queue_v1';
   const CAPTURE_VERSION = 2;
-  // Cole aqui a URL /exec do Google Apps Script quando o webhook for publicado.
-  const LEAD_WEBHOOK_URL = '';
+  const LEAD_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbxQqkmt93WTgvuYQIEe3QPdzYxuk-eFj5GHfZ_XAYnugRJoafWBsCJge5QIv6Np8_wQ/exec';
   const ORIGIN = 'Landing Society NOVE — Campo Society';
   const QUIZ_KEYS = ['state','terrain','area','investment','objective','timing'];
 
