@@ -26,6 +26,10 @@
     .vsl-wrap .primary-cta{margin-top:14px;min-height:66px;font-size:17px;box-shadow:0 14px 34px rgba(49,231,111,.34);border:1px solid rgba(255,255,255,.24)}
     .video-progress{pointer-events:none;cursor:default}
     .video-progress:disabled{opacity:1}
+    .prelead-form{margin:auto 0}
+    .prelead-form .lead-intro{margin:0 0 22px;color:var(--muted);line-height:1.55}
+    .prelead-error{color:#b53d3d;min-height:16px;font-size:12px;font-weight:600}
+    .captured-field{display:none!important}
     @media (min-width:860px){
       .hero{min-height:calc(100svh - 88px);padding:28px}
       .hero-grid{max-width:520px}
@@ -38,6 +42,7 @@
       .vsl-wrap .primary-cta{min-height:68px;font-size:18px}
     }
   </style>
+  <script src="assets/prelead.js" defer></script>
   <script src="assets/script.js" defer></script>
 </head>
 <body>
@@ -107,6 +112,36 @@
           <button class="ghost-btn" id="restartTopBtn" type="button">Reiniciar</button>
         </div>
 
+        <form id="preLeadForm" class="lead-form prelead-form" novalidate hidden>
+          <p class="question-kicker">Antes de começar</p>
+          <h2>Para quem devemos preparar esta análise?</h2>
+          <p class="lead-intro">Informe seu nome e WhatsApp. Assim a NOVE já consegue identificar seu interesse mesmo que você não conclua todas as perguntas.</p>
+
+          <div class="field-grid">
+            <label>
+              <span>Nome</span>
+              <input id="preLeadName" name="preLeadName" type="text" autocomplete="name" required maxlength="80" placeholder="Seu nome">
+              <small class="prelead-error" data-prelead-error="name"></small>
+            </label>
+            <label>
+              <span>WhatsApp</span>
+              <input id="preLeadPhone" name="preLeadPhone" type="tel" inputmode="tel" autocomplete="tel" required maxlength="20" placeholder="(91) 99999-9999">
+              <small class="prelead-error" data-prelead-error="phone"></small>
+            </label>
+          </div>
+
+          <label class="consent">
+            <input id="preLeadConsent" name="preLeadConsent" type="checkbox" required>
+            <span>Autorizo a NOVE a entrar em contato comigo sobre este projeto.</span>
+          </label>
+          <small class="prelead-error" data-prelead-error="consent"></small>
+
+          <button class="primary-cta" type="submit">
+            <span>Começar análise</span>
+            <span aria-hidden="true">→</span>
+          </button>
+        </form>
+
         <div id="quizStage" class="stage" aria-live="polite">
           <div class="progress-wrap" aria-label="Progresso do questionário">
             <div class="progress-meta">
@@ -127,29 +162,29 @@
         </div>
 
         <form id="leadForm" class="lead-form" novalidate hidden>
-          <p class="question-kicker">Etapa final</p>
-          <h2>Só falta uma informação para prepararmos sua análise.</h2>
-          <p>Preencha seus dados para gerar o resumo do projeto e conversar com a equipe da NOVE.</p>
+          <p class="question-kicker">Último detalhe</p>
+          <h2>Em qual cidade será o projeto?</h2>
+          <p>Com isso, conseguimos deixar o resumo mais completo antes de você falar com a equipe da NOVE.</p>
 
           <div class="field-grid">
-            <label>
+            <label class="captured-field">
               <span>Nome</span>
               <input id="leadName" name="name" type="text" autocomplete="name" required maxlength="80" placeholder="Seu nome">
               <small class="field-error" data-error-for="name"></small>
             </label>
-            <label>
+            <label class="field-wide">
               <span>Cidade</span>
               <input id="leadCity" name="city" type="text" autocomplete="address-level2" required maxlength="80" placeholder="Sua cidade">
               <small class="field-error" data-error-for="city"></small>
             </label>
-            <label class="field-wide">
+            <label class="captured-field">
               <span>Telefone / WhatsApp</span>
               <input id="leadPhone" name="phone" type="tel" inputmode="tel" autocomplete="tel" required maxlength="20" placeholder="(91) 99999-9999">
               <small class="field-error" data-error-for="phone"></small>
             </label>
           </div>
 
-          <label class="consent">
+          <label class="consent captured-field">
             <input id="leadConsent" name="consent" type="checkbox">
             <span>Ao continuar, concordo em ser contatado pela NOVE sobre meu projeto.</span>
           </label>
