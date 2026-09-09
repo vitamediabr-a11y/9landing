@@ -88,7 +88,7 @@
     els.options.querySelectorAll('.option-btn').forEach(b => b.classList.toggle('selected', b.textContent === option));
     setTimeout(() => {
       if (state.step < QUESTIONS.length - 1) { state.step += 1; saveState(); renderQuestion(); }
-      else showLeadForm();
+      else { state.step = QUESTIONS.length; saveState(); showResult(); }
     }, 140);
   }
 
@@ -120,7 +120,7 @@
 
   function buildWhatsappUrl(){
     const a=state.answers, l=state.lead;
-    const message = `NOVO LEAD — PROJETO SOCIETY\n\nOlá, vim pela campanha de investimento em campos society da NOVE.\n\nNome: ${l.name}\nCidade/UF: ${l.city} / ${a.state}\nSituação do terreno: ${a.terrain}\nÁrea disponível: ${a.area}\nInvestimento previsto: ${a.investment}\nObjetivo: ${a.objective}\nPrevisão de início: ${a.timing}\n\nGostaria de entender a viabilidade do meu projeto e os próximos passos.`;
+    const message = `NOVO LEAD — PROJETO SOCIETY\n\nOlá, vim pela campanha de investimento em campos society da NOVE.\n\nNome: ${l.name}\nEstado: ${a.state}\nSituação do terreno: ${a.terrain}\nÁrea disponível: ${a.area}\nInvestimento previsto: ${a.investment}\nObjetivo: ${a.objective}\nPrevisão de início: ${a.timing}\n\nGostaria de entender a viabilidade do meu projeto e os próximos passos.`;
     return `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`;
   }
 
@@ -136,6 +136,7 @@
     els.whatsapp.href = buildWhatsappUrl();
     els.stage.hidden = true; els.leadForm.hidden = true; els.result.hidden = false;
     trackEvent(`lead_${state.score}`, { region:state.answers.state });
+    if (window.NoveLeadSync?.sync) void window.NoveLeadSync.sync('completed', { lastStage:'Quiz concluído' });
   }
 
   function openQuiz(){
@@ -143,7 +144,7 @@
     document.body.classList.add('quiz-open');
     trackEvent('quiz_started');
     if (state.completed && state.score) showResult();
-    else if (state.step >= QUESTIONS.length) showLeadForm();
+    else if (state.step >= QUESTIONS.length) showResult();
     else renderQuestion();
     setTimeout(() => els.quizSection.scrollIntoView({behavior:'smooth',block:'start'}), 30);
   }
