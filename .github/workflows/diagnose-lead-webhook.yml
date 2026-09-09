@@ -1,0 +1,31 @@
+name: Diagnose lead webhook
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/diagnose-lead-webhook.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe Apps Script endpoint
+        env:
+          WEBHOOK_URL: https://script.google.com/macros/s/AKfycbxQqkmt93WTgvuYQIEe3QPdzYxuk-eFj5GHfZ_XAYnugRJoafWBsCJge5QIv6Np8_wQ/exec
+        run: |
+          set -u
+          echo '--- GET ---'
+          curl -sS -L -D /tmp/get_headers.txt -o /tmp/get_body.txt -w 'HTTP_FINAL=%{http_code}\nURL_FINAL=%{url_effective}\n' "$WEBHOOK_URL" || true
+          cat /tmp/get_headers.txt
+          head -c 1000 /tmp/get_body.txt || true
+          echo
+          echo '--- POST ---'
+          payload='{"leadId":"nove-diagnose-20260909","capturedAt":"2026-09-09T05:35:05Z","updatedAt":"2026-09-09T05:35:05Z","name":"Teste Diagnóstico NOVE","phone":"(91) 90000-0000","consent":true,"state":"Pará","terrain":"","area":"","investment":"","objective":"","timing":"","city":"","score":"","status":"captured","lastStage":"Diagnóstico webhook","whatsappClicked":false,"origin":"Diagnóstico técnico NOVE"}'
+          curl -sS -L -D /tmp/post_headers.txt -o /tmp/post_body.txt -w 'HTTP_FINAL=%{http_code}\nURL_FINAL=%{url_effective}\n' -H 'Content-Type: text/plain;charset=utf-8' --data-raw "$payload" "$WEBHOOK_URL" || true
+          cat /tmp/post_headers.txt
+          head -c 2000 /tmp/post_body.txt || true
+          echo
