@@ -2,6 +2,7 @@
   'use strict';
 
   const STORAGE_KEY = 'nove_society_lead_v1';
+  const CAPTURE_VERSION = 2;
   // Cole aqui a URL /exec do Google Apps Script quando o webhook for publicado.
   const LEAD_WEBHOOK_URL = '';
   const ORIGIN = 'Landing Society NOVE — Campo Society';
@@ -25,7 +26,7 @@
   const hasIdentity = (state) => {
     const name = state?.lead?.name?.trim() || '';
     const phone = digitsOnly(state?.lead?.phone || '');
-    return name.length >= 2 && phone.length >= 10;
+    return name.length >= 2 && phone.length >= 10 && state?.lead?.captureVersion === CAPTURE_VERSION;
   };
 
   const ensureLeadIdentity = (state) => {
@@ -151,18 +152,26 @@
     if (nameError || phoneError || consentError) return;
 
     let state = readState();
-    state.step = Number.isInteger(state.step) ? Math.min(state.step, 5) : 0;
-    state.answers = state.answers || {};
-    state.lead = { ...(state.lead || {}), name, phone, consent };
+
+    // Uma nova captura sempre inicia uma análise nova na Pergunta 1.
+    state.step = 0;
+    state.answers = {};
+    state.lead = { name, phone, city: '', consent, captureVersion: CAPTURE_VERSION };
     state.score = null;
     state.completed = false;
+    delete state.leadId;
+    delete state.capturedAt;
     state = ensureLeadIdentity(state);
 
     pushEvent('lead_captured_before_quiz', { phone_digits: digits.length });
     syncLead('captured', { lastStage: 'Cadastro inicial' });
     preLeadForm.hidden = true;
 
-    startBtn.click();
+    // Recarrega a aplicação para impedir que um estado antigo em memória pule perguntas.
+    const nextUrl = new URL(window.location.href);
+    nextUrl.searchParams.set('quiz', '1');
+    nextUrl.hash = 'analise';
+    window.location.replace(nextUrl.toString());
   });
 
   if (options) {
@@ -191,5 +200,14 @@
 
   if (floatingWhatsapp) {
     floatingWhatsapp.addEventListener('click', () => syncLead('whatsapp_clicked', { lastStage: 'WhatsApp flutuante', whatsappClicked: true }));
+  }
+
+  // Após a captura, abre automaticamente a Pergunta 1 somente depois que script.js já registrou seus eventos.
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('quiz') === '1' && hasIdentity(readState())) {
+    const cleanUrl = new URL(window.location.href);
+    cleanUrl.searchParams.delete('quiz');
+    window.history.replaceState(null, '', `${cleanUrl.pathname}${cleanUrl.search}${cleanUrl.hash}`);
+    setTimeout(() => startBtn.click(), 0);
   }
 })();
