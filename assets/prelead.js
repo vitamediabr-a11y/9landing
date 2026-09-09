@@ -28,8 +28,8 @@
   const formatPhone = (value) => {
     const d = digitsOnly(value).slice(0, 11);
     if (d.length <= 2) return d ? `(${d}` : '';
-    if (d.length <= 7) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
-    return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
+    if (d.length <= 7) return `(${d.slice(0,2)}) ${d.slice(2)}`;
+    return `(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}`;
   };
 
   const hasIdentity = (state) => {
@@ -84,8 +84,6 @@
     };
   };
 
-  // Mantém apenas o estado mais recente de cada lead. Se a internet cair na pergunta 2
-  // e voltar na pergunta 5, a fila contém a pergunta 5, que já inclui todas as anteriores.
   const enqueuePayload = (payload) => {
     if (!payload?.leadId) return;
     const queue = readQueue().filter(item => item?.leadId !== payload.leadId);
@@ -163,14 +161,25 @@
 
   if (!startBtn || !quizSection || !preLeadForm) return;
 
+  preLeadForm.setAttribute('autocomplete', 'off');
+  preLeadName.setAttribute('autocomplete', 'off');
+  preLeadPhone.setAttribute('autocomplete', 'off');
+
   const params = new URLSearchParams(window.location.search);
   let bypassCaptureOnce = params.get('quiz') === '1' && hasIdentity(readState());
 
+  const resetPreLeadForm = () => {
+    preLeadForm.reset();
+    preLeadName.value = '';
+    preLeadPhone.value = '';
+    preLeadConsent.checked = false;
+    preLeadNameError.textContent = '';
+    preLeadPhoneError.textContent = '';
+    preLeadConsentError.textContent = '';
+  };
+
   const showPreLead = () => {
-    const state = readState();
-    preLeadName.value = state?.lead?.name || '';
-    preLeadPhone.value = formatPhone(state?.lead?.phone || '');
-    preLeadConsent.checked = !!state?.lead?.consent;
+    resetPreLeadForm();
 
     quizSection.hidden = false;
     if (quizStage) quizStage.hidden = true;
@@ -179,14 +188,16 @@
     preLeadForm.hidden = false;
 
     requestAnimationFrame(() => {
+      resetPreLeadForm();
       quizSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      setTimeout(() => preLeadName.focus({ preventScroll: true }), 250);
+      setTimeout(() => {
+        resetPreLeadForm();
+        preLeadName.focus({ preventScroll: true });
+      }, 250);
     });
   };
 
   startBtn.addEventListener('click', (event) => {
-    // O único clique que pode pular o cadastro é o clique automático executado
-    // imediatamente após o próprio formulário de Nome + WhatsApp ser enviado.
     if (bypassCaptureOnce) {
       bypassCaptureOnce = false;
       return;
@@ -221,8 +232,6 @@
     if (nameError || phoneError || consentError) return;
 
     let state = readState();
-
-    // Uma nova captura sempre inicia uma análise nova na Pergunta 1.
     state.step = 0;
     state.answers = {};
     state.lead = { name, phone, city: '', consent, captureVersion: CAPTURE_VERSION };
@@ -234,8 +243,6 @@
 
     pushEvent('lead_captured_before_quiz', { phone_digits: digits.length });
 
-    // Primeiro cria/atualiza o lead; somente depois abre a Pergunta 1.
-    // Se o endpoint estiver temporariamente indisponível, a fila local preserva o payload para retry.
     await Promise.race([
       syncLead('captured', { lastStage: 'Cadastro inicial' }),
       new Promise(resolve => setTimeout(resolve, 1400))
@@ -243,7 +250,6 @@
 
     preLeadForm.hidden = true;
 
-    // Recarrega a aplicação para impedir que um estado antigo em memória pule perguntas.
     const nextUrl = new URL(window.location.href);
     nextUrl.searchParams.set('quiz', '1');
     nextUrl.hash = 'analise';
@@ -253,7 +259,6 @@
   if (options) {
     options.addEventListener('click', (event) => {
       if (!event.target.closest('.option-btn')) return;
-      // script.js grava a resposta no localStorage de forma síncrona antes deste evento chegar ao pai.
       setTimeout(() => {
         const state = readState();
         const answeredCount = QUIZ_KEYS.filter(key => state?.answers?.[key]).length;
@@ -289,7 +294,6 @@
     });
   }
 
-  // Após a captura, abre automaticamente a Pergunta 1 somente depois que script.js já registrou seus eventos.
   if (bypassCaptureOnce) {
     const cleanUrl = new URL(window.location.href);
     cleanUrl.searchParams.delete('quiz');
