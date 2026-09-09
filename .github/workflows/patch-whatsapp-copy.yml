@@ -1,0 +1,37 @@
+name: Patch WhatsApp copy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/patch-whatsapp-copy.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update WhatsApp message copy
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('assets/script.js')
+          s = p.read_text()
+          old = "const message = `NOVO LEAD — PROJETO SOCIETY\\n\\nOlá, vim pela campanha de investimento em campos society da NOVE.\\n\\nNome: ${l.name}\\nCidade/UF: ${l.city} / ${a.state}\\nSituação do terreno: ${a.terrain}\\nÁrea disponível: ${a.area}\\nInvestimento previsto: ${a.investment}\\nObjetivo: ${a.objective}\\nPrevisão de início: ${a.timing}\\n\\nGostaria de entender a viabilidade do meu projeto e os próximos passos.`;"
+          new = "const message = `Oi, pessoal da NOVE! Tudo bem? 👋\\n\\nMeu nome é ${l.name} e acabei de fazer a análise do meu projeto pelo site.\\n\\n📍 ${l.city} / ${a.state}\\n🏟️ Terreno: ${a.terrain}\\n📐 Área: ${a.area}\\n💰 Investimento: ${a.investment}\\n🎯 Objetivo: ${a.objective}\\n🗓️ Prazo: ${a.timing}\\n\\nQueria conversar com vocês sobre esse projeto e entender como podemos avançar.`;"
+          if s.count(old) != 1:
+              raise SystemExit(f'Expected one WhatsApp message match, found {s.count(old)}')
+          p.write_text(s.replace(old, new, 1))
+          PY
+          node --check assets/script.js
+          git diff --check
+      - name: Commit copy update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/script.js
+          git commit -m "copy: make WhatsApp lead message more natural"
+          git push
