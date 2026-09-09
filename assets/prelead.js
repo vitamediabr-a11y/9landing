@@ -182,7 +182,10 @@
     resetPreLeadForm();
 
     quizSection.hidden = false;
-    if (quizStage) quizStage.hidden = true;
+    if (quizStage) {
+      quizStage.hidden = true;
+      quizStage.style.display = 'none';
+    }
     if (finalLeadForm) finalLeadForm.hidden = true;
     if (resultPanel) resultPanel.hidden = true;
     preLeadForm.hidden = false;
