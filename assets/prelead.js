@@ -164,6 +164,9 @@
 
   if (!startBtn || !quizSection || !preLeadForm) return;
 
+  const params = new URLSearchParams(window.location.search);
+  let bypassCaptureOnce = params.get('quiz') === '1' && hasIdentity(readState());
+
   const showPreLead = () => {
     const state = readState();
     preLeadName.value = state?.lead?.name || '';
@@ -183,7 +186,13 @@
   };
 
   startBtn.addEventListener('click', (event) => {
-    if (hasIdentity(readState())) return;
+    // O único clique que pode pular o cadastro é o clique automático executado
+    // imediatamente após o próprio formulário de Nome + WhatsApp ser enviado.
+    if (bypassCaptureOnce) {
+      bypassCaptureOnce = false;
+      return;
+    }
+
     event.preventDefault();
     event.stopImmediatePropagation();
     pushEvent('lead_capture_opened');
@@ -282,8 +291,7 @@
   }
 
   // Após a captura, abre automaticamente a Pergunta 1 somente depois que script.js já registrou seus eventos.
-  const params = new URLSearchParams(window.location.search);
-  if (params.get('quiz') === '1' && hasIdentity(readState())) {
+  if (bypassCaptureOnce) {
     const cleanUrl = new URL(window.location.href);
     cleanUrl.searchParams.delete('quiz');
     window.history.replaceState(null, '', `${cleanUrl.pathname}${cleanUrl.search}${cleanUrl.hash}`);
