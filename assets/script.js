@@ -120,7 +120,7 @@
 
   function buildWhatsappUrl(){
     const a=state.answers, l=state.lead;
-    const message = `NOVO LEAD — PROJETO SOCIETY\n\nOlá, vim pela campanha de investimento em campos society da NOVE.\n\nNome: ${l.name}\nCidade/UF: ${l.city} / ${a.state}\nSituação do terreno: ${a.terrain}\nÁrea disponível: ${a.area}\nInvestimento previsto: ${a.investment}\nObjetivo: ${a.objective}\nPrevisão de início: ${a.timing}\n\nGostaria de entender a viabilidade do meu projeto e os próximos passos.`;
+    const message = `Oi, pessoal da NOVE! Tudo bem? 👋\n\nMeu nome é ${l.name} e acabei de fazer a análise do meu projeto pelo site.\n\n📍 ${l.city} / ${a.state}\n🏟️ Terreno: ${a.terrain}\n📐 Área: ${a.area}\n💰 Investimento: ${a.investment}\n🎯 Objetivo: ${a.objective}\n🗓️ Prazo: ${a.timing}\n\nQueria conversar com vocês sobre esse projeto e entender como podemos avançar.`;
     return `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`;
   }
 
